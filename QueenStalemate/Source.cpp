@@ -14,6 +14,60 @@ nothing needs to be placed behind first call because it is already done by previ
 */
 using namespace std;
 
+bool testHorisontal(int color, int pos, int size, int *grid) {
+	int row = pos / size;
+	row *= size;
+	for (int i = row; i < row + size; i++) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool testVertical(int color, int pos, int size, int *grid) {
+	//test vertical
+	int col = pos % size;
+	for (int i = col; i < size * size; i += size) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool testNW(int color, int pos, int size, int *grid) {
+	//search back
+	for (int i = pos; i >= 0 && i % size >= 0; i -= (size + 1)) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	//search forward
+	for (int i = pos; i < size*size && i % size < size; i += (size + 1)) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool testNE(int color, int pos, int size, int *grid) {
+	//search back
+	for (int i = pos; i >= 0 && i % size <= (size - 1); i -= (size - 1)) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	//search forward
+	for (int i = pos; i < size*size && i % size >= 0; i += (size - 1)) {
+		if (grid[i] != 0 && grid[i] != color) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void printGrid(int size, int *grid) {
 	//print grid
 	for (int i = 0; i < size * size; i++) {
@@ -21,9 +75,9 @@ void printGrid(int size, int *grid) {
 		if (!(i % size))
 			cout << '\n';
 		if (grid[i] == 0)
-			cout << "X";
+			cout << "X ";
 		else
-			cout << grid[i];
+			cout << grid[i] << " ";
 	}
 }
 
@@ -33,50 +87,14 @@ bool testPlace(int color, int pos, int size, int *grid) {
 		return false;
 	}
 
-	//test horisontal
-	int row = pos / size;
-	row *= size;
-	for (int i = row; i < row + size; i++) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
-
-	//test vertical
-	int col = pos % size;
-	for (int i = col; i < size * size; i += size) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
-
-	//test top left
-	//search back
-	for (int i = pos; i >= 0; i -= size + 1) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
-	//search forward
-	for (int i = pos; i < size*size; i += size + 1) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
-
-	//test top right
-	//search back
-	for (int i = pos; i >= 0; i -= size - 1) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
-	//search forward
-	for (int i = pos; i < size*size; i += size - 1) {
-		if (grid[i] != 0 && grid[i] != color) {
-			return false;
-		}
-	}
+	if (!testHorisontal(color, pos, size, grid))
+		return false;
+	if (!testVertical(color, pos, size, grid))
+		return false;
+	if (!testNW(color, pos, size, grid))
+		return false;
+	if (!testNE(color, pos, size, grid))
+		return false;
 	return true;
 }
 
@@ -92,7 +110,8 @@ int main(int argc, char *argv[]) {
 
 	//queen pair loop
 	int j = 0;
-	for (int i = 0; i < size*size / 2; i++) {
+	int i = 0;
+	for (; i < size*size / 2; i++) {
 		//white position loop
 		bool wPlaced = false;
 		bool bPlaced = false;
@@ -121,6 +140,7 @@ int main(int argc, char *argv[]) {
 		}
 
 	}
+	cout << "Pair Count: " << i;
 
 	printGrid(size, grid);
 
