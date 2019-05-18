@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include "Header.h"
 /*
 grid of queens
 equal ammounts black and white
@@ -86,7 +87,6 @@ bool testPlace(int color, int pos, int size, int *grid) {
 	if (grid[pos] != 0) {
 		return false;
 	}
-
 	if (!testHorisontal(color, pos, size, grid))
 		return false;
 	if (!testVertical(color, pos, size, grid))
@@ -98,51 +98,57 @@ bool testPlace(int color, int pos, int size, int *grid) {
 	return true;
 }
 
+int placeWhite(int pos, int size, int *grid) {
+	//white position loop
+	for (int i = pos; i < size*size; i++) {
+		if (testPlace(1, i, size, grid)) {
+			grid[i] = 1;
+			return i;
+		}
+	}
+	return -1;
+}
+
+bool placeBlack(int pos, int size, int *grid) {
+	//black position loop
+	for (int i = pos; i < size*size; i++) {
+		if (testPlace(2, i, size, grid)) {
+			grid[i] = 2;
+			return true;
+		}
+	}
+	return false;
+}
+
 int main(int argc, char *argv[]) {
 	//no size fail
 	if (argc == 1) {
 		return -1;
 	}
 
+	//Define grid size
 	int size = atoi(argv[1]);
 	int *grid = new int[size * size];
 	memset(grid, 0, sizeof(int) * (size * size) );
 
-	//queen pair loop
-	int j = 0;
-	int i = 0;
-	for (; i < size*size / 2; i++) {
-		//white position loop
-		bool wPlaced = false;
-		bool bPlaced = false;
-		for ( ; j < size*size && !wPlaced; j++) {
-			if (testPlace(1, j, size, grid)) {
-				grid[j] = 1;
-				//black position loop
-				for (int k = j; k < size*size && !bPlaced; k++) {
-					if (testPlace(2, k, size, grid)) {
-						grid[k] = 2;
-						bPlaced = true;
-					}
-				}
-				if (!bPlaced) {
-					grid[j] = 0;
-					break;
-				}
-				else{ 
-					wPlaced = true; 
-				}
-					
+	int lastPos = 0;
+	int nextPos = 0;
+	while (nextPos < size * size) {
+		//Place Next White, starting at previous+1
+		lastPos = placeWhite(nextPos, size, grid);
+		if (lastPos == -1) {
+			nextPos++;
+		}
+		else {
+			//place next black
+			//if no black can be placed: remove last white and continue white+1
+			if (!placeBlack(0, size, grid)) {
+				grid[lastPos] = 0;
+				nextPos++;
 			}
 		}
-		if (!wPlaced) {
-			break;
-		}
-
 	}
-	cout << "Pair Count: " << i;
 
 	printGrid(size, grid);
-
 	return size;
 }
