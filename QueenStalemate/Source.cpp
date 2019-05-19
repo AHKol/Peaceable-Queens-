@@ -1,6 +1,11 @@
 #include <iostream>
 #include <cstdlib>
 #include "Header.h"
+
+#include<thread>
+#include <mutex> 
+//std::thread thread_object(callable)
+
 /*
 grid of queens
 equal ammounts black and white
@@ -14,6 +19,7 @@ black and white can be mirrored
 nothing needs to be placed behind first call because it is already done by previous calls
 */
 using namespace std;
+std::mutex mtx;
 
 int QUEENCOUNT = 0;
 int NEWMAX = -1;
@@ -74,7 +80,7 @@ bool testNE(int color, int pos, int size, int *grid) {
 
 void printGrid(int size, int *grid) {
 	//print grid
-	cout << "Size is: " << QUEENCOUNT << '\n';
+	cout << "Size is: " << NEWMAX << '\n';
 	for (int i = 0; i < size * size; i++) {
 		//print new rows
 		if (!(i % size))
@@ -106,7 +112,7 @@ bool testPlace(int color, int pos, int size, int *grid) {
 
 //pos is current position
 //lastpos is the position of the last white queen
-void placeW(int pos, int lastPos, int size, int *grid) {
+void placeW(int pos, int lastPos, int size, int *grid, int queenCount) {
 	//base case
 	if (!testPlace(1, pos, size, grid)) {
 		return;
@@ -115,31 +121,32 @@ void placeW(int pos, int lastPos, int size, int *grid) {
 
 	//Place next Black queen
 	for (int i = lastPos; i < size*size; i++) {
-		placeB(i, lastPos, size, grid);
+		placeB(i, lastPos, size, grid, queenCount);
 	}
 
 	grid[pos] = 0;
 	return;
 }
-void placeB(int pos, int lastPos, int size, int *grid) {
+void placeB(int pos, int lastPos, int size, int *grid, int queenCount) {
 	//base case
 	if (!testPlace(2, pos, size, grid)) {
 		//printGrid(size, grid);
 		return;
 	}
 	grid[pos] = 2;
-	QUEENCOUNT++;
 
-	if (QUEENCOUNT > NEWMAX) {
-		NEWMAX = QUEENCOUNT;
+	mtx.lock();
+	if (queenCount+1 > NEWMAX) {
+		NEWMAX = queenCount + 1;
 		printGrid(size, grid);
 	}
+	mtx.unlock();
 
 	//Place next white queen
 	for (int i = lastPos; i < size*size; i++) {
-		placeW(i, lastPos, size, grid);
+		placeW(i, lastPos, size, grid, queenCount + 1);
 	}
-	QUEENCOUNT--;
+
 	grid[pos] = 0;
 	return;
 }
@@ -154,6 +161,7 @@ bool tester(int size, int* grid) {
 		}
 		cout << '\n' << '\n';
 		printGrid(size, grid);
+
 		memset(grid, 0, sizeof(int) * (size * size));
 	}
 	return false;
@@ -165,24 +173,51 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 
+	//Generate a tread for each starting position, 
+	//Starting positions are white queens on the first row
+	//Only first half is necessary due to mirroring?
+
 	//Define grid size
+	//int size = atoi(argv[1]);
+	//int *grid = new int[size * size];
+	//memset(grid, 0, sizeof(int) * (size * size) );
+
+	int const SIZE = 5;
 	int size = atoi(argv[1]);
-	int *grid = new int[size * size];
-	memset(grid, 0, sizeof(int) * (size * size) );
-
-	int percent = 0;
-	for (int i = 0; i < size*size; i++) {
-
-		//progress bar
-		percent = i * 100;
-		percent /= size * size;
-		cout << percent << "% done\n";
-
-		//start of program
-		placeW(i, i, size, grid);
+	int **grid = new int*[SIZE];
+	for (int i = 0; i < SIZE; i++) {
+		grid[i] = new int[size * size];
+		memset(grid[i], 0, sizeof(int) * (size * size));
 	}
 
+	std::thread t[SIZE];
+	for (int i = 0; i < SIZE; i++) {
+		t[i] = thread(placeW, i, i, size, grid[i], 0);
+	}
+	for (int i = 0; i < SIZE; i++) {
+		t[i].join();
+	}
+
+
+	//int percent = 0;
+
+	//for (int i = 0; i < size*size; i++) {
+
+	//	//progress bar
+	//	percent = i * 100;
+	//	percent /= size * size;
+	//	cout << percent << "% done\n";
+
+	//	//start of program
+	//	placeW(i, i, size, grid);
+	//}
+
 //	tester(size, grid);
+
+	for (int i = 0; i < SIZE; i++) {
+		delete grid[i];
+	}
+	delete grid;
 
 	return NEWMAX;
 }
