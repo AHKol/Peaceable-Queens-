@@ -41,14 +41,14 @@ bool testVertical(int color, int pos, int size, int *grid) {
 }
 
 bool testNW(int color, int pos, int size, int *grid) {
-	//search back
-	for (int i = pos; i >= 0 && i % size >= 0; i -= (size + 1)) {
+	//search back, NW
+	for (int i = pos; i >= 0 && (i % size) <= (pos % size); i -= (size + 1)) {
 		if (grid[i] != 0 && grid[i] != color) {
 			return false;
 		}
 	}
-	//search forward
-	for (int i = pos; i < size*size && i % size < size; i += (size + 1)) {
+	//search forward, SE
+	for (int i = pos; i < size*size && (i % size) >= (pos % size); i += (size + 1)) {
 		if (grid[i] != 0 && grid[i] != color) {
 			return false;
 		}
@@ -57,14 +57,14 @@ bool testNW(int color, int pos, int size, int *grid) {
 }
 
 bool testNE(int color, int pos, int size, int *grid) {
-	//search back
-	for (int i = pos; i >= 0 && i % size <= (size - 1); i -= (size - 1)) {
+	//search back, NE
+	for (int i = pos; i > 0 && (i % size) >= ( pos % size); i -= (size - 1)) {
 		if (grid[i] != 0 && grid[i] != color) {
 			return false;
 		}
 	}
-	//search forward
-	for (int i = pos; i < size*size && i % size >= 0; i += (size - 1)) {
+	//search forward, SW
+	for (int i = pos; i < size*size && (i % size) <= (pos % size); i += (size - 1)) {
 		if (grid[i] != 0 && grid[i] != color) {
 			return false;
 		}
@@ -154,7 +154,6 @@ int main(int argc, char *argv[]) {
 	int size = atoi(argv[1]);
 	int *grid = new int[size * size];
 	memset(grid, 0, sizeof(int) * (size * size) );
-	
 
 	for (int i = 0; i < size*size; i++) {
 		placeW(i, i, size, grid);
