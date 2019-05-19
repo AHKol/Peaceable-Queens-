@@ -58,7 +58,7 @@ bool testNW(int color, int pos, int size, int *grid) {
 
 bool testNE(int color, int pos, int size, int *grid) {
 	//search back, NE
-	for (int i = pos; i > 0 && (i % size) >= ( pos % size); i -= (size - 1)) {
+	for (int i = pos; i >= 0 && (i % size) >= ( pos % size); i -= (size - 1)) {
 		if (grid[i] != 0 && grid[i] != color) {
 			return false;
 		}
@@ -80,7 +80,7 @@ void printGrid(int size, int *grid) {
 		if (!(i % size))
 			cout << '\n';
 		if (grid[i] == 0)
-			cout << "X ";
+			cout << "- ";
 		else
 			cout << grid[i] << " ";
 	}
@@ -144,6 +144,21 @@ void placeB(int pos, int lastPos, int size, int *grid) {
 	return;
 }
 
+bool tester(int size, int* grid) {
+	for (int i = 0; i < size*size; i++) {
+		grid[i] = 1;
+		for (int j = 0; j < size*size; j++) {
+			if (!testPlace(2, j, size, grid) && i != j) {
+				grid[j] = 2;
+			}
+		}
+		cout << '\n' << '\n';
+		printGrid(size, grid);
+		memset(grid, 0, sizeof(int) * (size * size));
+	}
+	return false;
+}
+
 int main(int argc, char *argv[]) {
 	//no size fail
 	if (argc == 1) {
@@ -155,9 +170,19 @@ int main(int argc, char *argv[]) {
 	int *grid = new int[size * size];
 	memset(grid, 0, sizeof(int) * (size * size) );
 
+	int percent = 0;
 	for (int i = 0; i < size*size; i++) {
+
+		//progress bar
+		percent = i * 100;
+		percent /= size * size;
+		cout << percent << "% done\n";
+
+		//start of program
 		placeW(i, i, size, grid);
 	}
 
-	return size;
+//	tester(size, grid);
+
+	return NEWMAX;
 }
