@@ -182,23 +182,31 @@ int main(int argc, char *argv[]) {
 	//int *grid = new int[size * size];
 	//memset(grid, 0, sizeof(int) * (size * size) );
 
-	int const SIZE = 5;
+	int const T_COUNT = 9999;
 	int size = atoi(argv[1]);
-	int **grid = new int*[SIZE];
-	for (int i = 0; i < SIZE; i++) {
+	int **grid = new int*[T_COUNT];
+	for (int i = 0; i < T_COUNT; i++) {
 		grid[i] = new int[size * size];
 		memset(grid[i], 0, sizeof(int) * (size * size));
 	}
 
-	std::thread t[SIZE];
-	for (int i = 0; i < SIZE; i++) {
-		t[i] = thread(placeW, i, i, size, grid[i], 0);
-	}
-	for (int i = 0; i < SIZE; i++) {
-		t[i].join();
-	}
+	thread t[T_COUNT];
 
-
+	//if more threads than calls
+	if (T_COUNT > size) {
+		for (int i = 0; i < size; i++) {
+			t[i] = thread(placeW, i, i, size, grid[i], 0);
+		}
+		for (int i = 0; i < size; i++) {
+			t[i].join();
+			cout << "Thread " << i << " complete\n";
+		}
+	}
+	else {
+		cout << "Error, too large\n";
+		return 0;
+	}
+	
 	//int percent = 0;
 
 	//for (int i = 0; i < size*size; i++) {
@@ -214,7 +222,7 @@ int main(int argc, char *argv[]) {
 
 //	tester(size, grid);
 
-	for (int i = 0; i < SIZE; i++) {
+	for (int i = 0; i < T_COUNT; i++) {
 		delete grid[i];
 	}
 	delete grid;
