@@ -185,7 +185,7 @@ int main(int argc, char *argv[]) {
 	memset(grid, 0, sizeof(int) * (size * size) );
 	
 
-	for (int i = 0; i < size*size; i++) {
+	for (int i = 1; i < size*size; i++) {
 		placeW(i, i, size, grid);
 	}
 
