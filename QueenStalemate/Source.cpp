@@ -104,28 +104,6 @@ bool testPlace(int color, int pos, int size, int *grid) {
 	return true;
 }
 
-int placeWhite(int pos, int size, int *grid) {
-	//white position loop
-	for (int i = pos; i < size*size; i++) {
-		if (testPlace(1, i, size, grid)) {
-			grid[i] = 1;
-			return i;
-		}
-	}
-	return -1;
-}
-
-int placeBlack(int pos, int size, int *grid) {
-	//black position loop
-	for (int i = pos; i < size*size; i++) {
-		if (testPlace(2, i, size, grid)) {
-			grid[i] = 2;
-			return i;
-		}
-	}
-	return 0;
-}
-
 //pos is current position
 //lastpos is the position of the last white queen
 void placeW(int pos, int lastPos, int size, int *grid) {
@@ -166,13 +144,6 @@ void placeB(int pos, int lastPos, int size, int *grid) {
 	return;
 }
 
-//in white
-	//recursive place black
-	//recursive place next black
-	//until end
-
-//recursive black places white if possible, if not posible it prints arangement to file and undoes what it printed
-
 int main(int argc, char *argv[]) {
 	//no size fail
 	if (argc == 1) {
@@ -188,24 +159,6 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < size*size; i++) {
 		placeW(i, i, size, grid);
 	}
-
-	//int lastPos = 0;
-	//int nextPos = 0;
-	//while (nextPos < size * size) {
-	//	//Place Next White, starting at previous+1
-	//	lastPos = placeWhite(nextPos, size, grid);
-	//	if (lastPos == -1) {
-	//		nextPos++;
-	//	}
-	//	else {
-	//		//place next black
-	//		//if no black can be placed: remove last white and continue white+1
-	//		if (!placeBlack(0, size, grid)) {
-	//			grid[lastPos] = 0;
-	//			nextPos++;
-	//		}
-	//	}
-	//}
 
 	return size;
 }
